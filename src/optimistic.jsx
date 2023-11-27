@@ -12,7 +12,7 @@ const Optimistic = () => {
             return response;
         },
     });
-    const { mutate, isError } = useMutation({
+    const { mutate, isError, isPending, variables } = useMutation({
         mutationFn: (newProduct) =>
             fetch('http://localhost:3000/posts', {
                 method: 'POST',
@@ -35,6 +35,10 @@ const Optimistic = () => {
         mutate(post);
     };
 
+    const handleRetry = (post) => {
+        mutate(post);
+    };
+
     return (
         <>
             <div className="p-4 flex gap-12">
@@ -54,7 +58,24 @@ const Optimistic = () => {
                 <div className="flex-1">
                     <h2 className="text-lg font-bold mb-4">Posts:</h2>
                     <ul>
-                        {isError && <p className="text-red-500">Something went wrong</p>}
+                        {isPending && (
+                            <li className="border p-2 mb-4 opacity-40" key={variables.id}>
+                                {variables.title}
+                            </li>
+                        )}
+
+                        {isError && (
+                            <li className="border p-2 mb-4 flex justify-between" key={variables.id}>
+                                <span className="text-red-500">{variables.title}</span>
+                                <button
+                                    className="text-blue-500"
+                                    onClick={() => {
+                                        handleRetry(variables);
+                                    }}>
+                                    Retry
+                                </button>
+                            </li>
+                        )}
 
                         {posts?.map((post) => {
                             return (
